@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">CVAndroid</string>
+    <string name="provider_authorities">com.soulmatexd.cvandroid.fileprovider</string>
+</resources>
