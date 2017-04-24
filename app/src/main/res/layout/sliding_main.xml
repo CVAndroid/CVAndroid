@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.soulmatexd.cvandroid.SlidingMain.SlidingMain
+    android:id="@+id/main_sliding"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:background="@color/blue"
+            >
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/main_sliding_take_photo"
+                android:layout_width="@dimen/slidingmeni_round_image_size"
+                android:layout_height="@dimen/slidingmeni_round_image_size"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:src="@mipmap/ic_launcher"
+                android:layout_marginBottom="120dp"
+                />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            >
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/main_sliding_album"
+                android:layout_width="@dimen/slidingmeni_round_image_size"
+                android:layout_height="@dimen/slidingmeni_round_image_size"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="120dp"
+                android:src="@mipmap/ic_launcher" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</com.soulmatexd.cvandroid.SlidingMain.SlidingMain>
+

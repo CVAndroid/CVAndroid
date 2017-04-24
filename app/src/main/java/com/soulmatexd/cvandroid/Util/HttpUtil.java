@@ -1,4 +1,4 @@
-package com.soulmatexd.cvandroid;
+package com.soulmatexd.cvandroid.Util;
 
 import android.accounts.NetworkErrorException;
 import android.content.Context;

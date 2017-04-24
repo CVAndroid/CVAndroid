@@ -1,30 +1,28 @@
 package com.soulmatexd.cvandroid;
 
 import android.Manifest;
-import android.content.ContentUris;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.makeramen.roundedimageview.RoundedImageView;
+import com.soulmatexd.cvandroid.SlidingMain.SlidingScrollListener;
+import com.soulmatexd.cvandroid.SlidingMain.SlidingMain;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import butterknife.BindView;
@@ -32,73 +30,119 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
-
-    @BindView(R.id.main_take_photo)
-    Button mainTakePhoto;
-    @BindView(R.id.main_from_album)
-    Button mainFromAlbum;
-    @BindView(R.id.main_image)
-    ImageView mainImage;
+    @BindView(R.id.main_sliding_take_photo)
+    RoundedImageView mainSlidingTakePhoto;
+    @BindView(R.id.main_sliding_album)
+    RoundedImageView mainSlidingAlbum;
+    @BindView(R.id.main_sliding)
+    SlidingMain mainSliding;
 
     public static final int TAKE_PHOTO = 1;
     public static final int CHOOSE_PHOTO = 2;
+
 
     private String FILE_PROVIDER;
 
     private Uri imageUri;
 
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case TAKE_PHOTO:
+                    takePhoto();
+                    break;
+                case CHOOSE_PHOTO:
+                    chooseFromAlbum();
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.sliding_main);
         ButterKnife.bind(this);
 
         FILE_PROVIDER = getResources().getString(R.string.provider_authorities);
+        mainSliding.setSlidingScrollListener(new SlidingScrollListener() {
+            @Override
+            public void onDownPage() {
+                chooseFromAlbum();
+            }
+
+            @Override
+            public void onUpPage() {
+                takePhoto();
+            }
+        });
     }
 
-    @OnClick({R.id.main_take_photo, R.id.main_from_album})
-    public void onViewClicked(View view) {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mainSliding.initSliding();
+    }
+
+    @OnClick({R.id.main_sliding_take_photo, R.id.main_sliding_album})
+    public void onViewClicked(View view){
         switch (view.getId()) {
-            case R.id.main_take_photo:
-                takePhoto();
+            case R.id.main_sliding_take_photo:
+                mainSliding.showTakePhoto();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Message msg1 = new Message();
+                        msg1.what = TAKE_PHOTO;
+                        handler.sendMessageDelayed(msg1, 500);
+                    }
+                }).start();
+
                 break;
-            case R.id.main_from_album:
-                chooseFromAlbum();
+            case R.id.main_sliding_album:
+                mainSliding.showAlbum();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Message msg2 = new Message();
+                        msg2.what = CHOOSE_PHOTO;
+                        handler.sendMessageDelayed(msg2, 500);
+                    }
+                }).start();
                 break;
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode){
+        switch (requestCode) {
             case TAKE_PHOTO:
-                if (resultCode == RESULT_OK){
-                    try {
-                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
-                        mainImage.setImageBitmap(bitmap);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
+                if (resultCode == RESULT_OK) {
+                        Intent intent = new Intent(MainActivity.this, Main2Activity.class);
+                        intent.setData(imageUri);
+                        intent.putExtra("TYPE", TAKE_PHOTO);
+                        startActivity(intent);
                 }
                 break;
             case CHOOSE_PHOTO:
-                if (resultCode == RESULT_OK && data != null){
+                if (resultCode == RESULT_OK && data != null) {
                     Uri imageUri = data.getData();
-                    String imagePath = getImagePath(imageUri, null);
-                    Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
-                    mainImage.setImageBitmap(bitmap);
+                    Intent intent = new Intent(MainActivity.this, Main2Activity.class);
+                    intent.setData(imageUri);
+                    intent.putExtra("TYPE", CHOOSE_PHOTO);
+                    startActivity(intent);
                 }
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode){
+        switch (requestCode) {
             case 1:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     openAlbum();
-                }else {
+                } else {
                     Toast.makeText(this, "You denied the permission", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -107,10 +151,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void chooseFromAlbum() {
         if (ContextCompat.checkSelfPermission(MainActivity.this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-        }else {
+        } else {
             openAlbum();
         }
 
@@ -122,11 +166,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private String getImagePath(Uri uri, String selection){
+    private String getImagePath(Uri uri, String selection) {
         String path = null;
         Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
-        if (cursor != null){
-            if (cursor.moveToFirst()){
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
                 path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             }
             cursor.close();
@@ -134,11 +178,11 @@ public class MainActivity extends AppCompatActivity {
         return path;
     }
 
-    public void takePhoto(){
+    public void takePhoto() {
         File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
 
         try {
-            if (outputImage.exists()){
+            if (outputImage.exists()) {
                 outputImage.delete();
             }
             outputImage.createNewFile();
@@ -146,9 +190,9 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        if (Build.VERSION.SDK_INT >= 24){
+        if (Build.VERSION.SDK_INT >= 24) {
             imageUri = FileProvider.getUriForFile(MainActivity.this, FILE_PROVIDER, outputImage);
-        }else {
+        } else {
             imageUri = Uri.fromFile(outputImage);
         }
 
