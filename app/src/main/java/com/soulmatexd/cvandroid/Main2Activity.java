@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.makeramen.roundedimageview.RoundedImageView;
 
@@ -23,7 +24,7 @@ public class Main2Activity extends AppCompatActivity {
 
     public static final int TAKE_PHOTO = 1;
     public static final int CHOOSE_PHOTO = 2;
-
+    private static final String TAG = "Main2Activity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +38,7 @@ public class Main2Activity extends AppCompatActivity {
             Bitmap bitmap = null;
             try {
                 bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                Log.d(TAG, "onCreate: "+bitmap.getByteCount());
                 image.setImageBitmap(bitmap);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -44,6 +46,8 @@ public class Main2Activity extends AppCompatActivity {
         }else if (type == CHOOSE_PHOTO){
             String imagePath = getImagePath(imageUri, null);
             Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+            Log.d(TAG, "onCreate: "+bitmap.getByteCount());
+
             image.setImageBitmap(bitmap);
         }else {
             Intent intent1 = new Intent(Main2Activity.this, MainActivity.class);

@@ -131,7 +131,8 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, Main2Activity.class);
                     intent.setData(imageUri);
                     intent.putExtra("TYPE", CHOOSE_PHOTO);
-                    startActivity(intent);
+//                    startActivity(intent);
+                startActivity(new Intent(MainActivity.this,AnalyzeActivity.class));
                 }
         }
     }

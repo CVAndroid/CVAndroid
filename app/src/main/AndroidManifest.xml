@@ -3,6 +3,7 @@
     package="com.soulmatexd.cvandroid">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="true"
@@ -11,7 +12,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="@string/provider_authorities"
@@ -29,9 +29,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Main2Activity">
-
-        </activity>
+        <activity android:name=".Main2Activity"></activity>
+        <activity android:name=".AnalyzeActivity"
+            android:screenOrientation="landscape"
+            ></activity>
     </application>
 
 </manifest>
