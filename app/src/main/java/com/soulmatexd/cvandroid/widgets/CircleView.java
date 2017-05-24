@@ -53,14 +53,15 @@ public class CircleView extends ImageView {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int width = MeasureSpec.getSize(widthMeasureSpec);
         int height = MeasureSpec.getSize(heightMeasureSpec);
-        if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.AT_MOST){
-            width = 20;
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int hetghtMode = MeasureSpec.getMode(heightMeasureSpec);
+        if(widthMode == MeasureSpec.AT_MOST&&heightMeasureSpec == MeasureSpec.AT_MOST){
+            setMeasuredDimension(25,25);
+        }else if(widthMode == MeasureSpec.AT_MOST){
+            setMeasuredDimension(25,height);
+        }else if(hetghtMode == MeasureSpec.AT_MOST){
+            setMeasuredDimension(width,25);
         }
-        if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST){
-            height = 20;
-        }
-        Log.d(TAG, "onMeasure: "+width+">"+height);
-        setMeasuredDimension(20,20);
 
     }
 
@@ -69,6 +70,5 @@ public class CircleView extends ImageView {
         super.onDraw(canvas);
         mPaint.setColor(mColor);
         canvas.drawCircle(10,10,5,mPaint);
-        Log.d(TAG, "onDraw: "+getMeasuredWidth()+">"+getMeasuredHeight());
     }
 }

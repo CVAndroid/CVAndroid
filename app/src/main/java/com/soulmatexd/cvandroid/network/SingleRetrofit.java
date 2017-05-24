@@ -1,5 +1,7 @@
 package com.soulmatexd.cvandroid.network;
 
+import com.google.gson.Gson;
+
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -14,7 +16,7 @@ public class SingleRetrofit {
     }
     public static class SingletonHolder{
         public static final Retrofit INSTANCE = new Retrofit.Builder()
-                .baseUrl("https://api.douban.com/v2/movie/")
+                .baseUrl("http://139.199.175.91:8080/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();

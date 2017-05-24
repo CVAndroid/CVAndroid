@@ -122,7 +122,9 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent = new Intent(MainActivity.this, Main2Activity.class);
                         intent.setData(imageUri);
                         intent.putExtra("TYPE", TAKE_PHOTO);
-                        startActivity(intent);
+//                        startActivity(intent);
+                    startActivity(new Intent(MainActivity.this,AnalyzeActivity.class));
+
                 }
                 break;
             case CHOOSE_PHOTO:

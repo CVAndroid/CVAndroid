@@ -1,9 +1,12 @@
 package com.soulmatexd.cvandroid.network;
 
-import com.soulmatexd.cvandroid.been.MovieBeen;
+import com.soulmatexd.cvandroid.been.CarImageBeen;
 
-import retrofit2.http.GET;
-import retrofit2.http.Query;
+import okhttp3.MultipartBody;
+
+import retrofit2.http.Multipart;
+import retrofit2.http.POST;
+import retrofit2.http.Part;
 import rx.Observable;
 
 /**
@@ -11,7 +14,8 @@ import rx.Observable;
  */
 
 public interface ApiService {
-    //测试数据
-    @GET("top250")
-    Observable<MovieBeen> getMovie(@Query("start") int start, @Query("count") int count);
+    @Multipart
+    @POST("car/upload/")
+    Observable<CarImageBeen> getResultCarImage(@Part MultipartBody.Part file);
+
 }

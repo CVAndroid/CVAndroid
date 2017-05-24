@@ -11,24 +11,30 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.soulmatexd.cvandroid.been.MovieBeen;
+import com.soulmatexd.cvandroid.been.CarImageBeen;
 import com.soulmatexd.cvandroid.network.ApiService;
 import com.soulmatexd.cvandroid.network.SingleRetrofit;
 import com.soulmatexd.cvandroid.widgets.SweepView;
 
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Observer;
+import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class AnalyzeActivity extends AppCompatActivity{
     private static final String TAG = "AnalyzeActivity";
+    File file = new File("/storage/emulated/0/1.jpg");
     public static final int TAKE_PHOTO = 1;
     public static final int CHOOSE_PHOTO = 2;
     @BindView(R.id.iv_one)
@@ -40,7 +46,7 @@ public class AnalyzeActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_analyze);
         ButterKnife.bind(this);
-
+        Log.d(TAG, "onCreate: ");
         sweepView.startSweep(car, 15000);
 
         ObjectAnimator o = ObjectAnimator.ofFloat(car,"alpha",0.6f,0.2f);
@@ -48,28 +54,33 @@ public class AnalyzeActivity extends AppCompatActivity{
         o.start();
 
         ApiService apiService = SingleRetrofit.getInstance().create(ApiService.class);
-        apiService.getMovie(0,10)
+
+        apiService.getResultCarImage(getImage(file))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<MovieBeen>() {
+                .subscribe(new Subscriber<CarImageBeen>() {
                     @Override
                     public void onCompleted() {
-
+                        Log.d(TAG, "onCompleted: ");
                     }
 
                     @Override
                     public void onError(Throwable e) {
-
+                        Log.d(TAG, "onError: "+e.getMessage());
                     }
 
                     @Override
-                    public void onNext(MovieBeen movieBeen) {
-                        Log.d(TAG, "onNext: "+movieBeen.getTitle());
-                        System.out.println(">>"+movieBeen.getTitle());
+                    public void onNext(CarImageBeen carImageBeen) {
+                        Log.d(TAG, "onNext: "+carImageBeen.getImg());
                     }
                 });
     }
 
+    public MultipartBody.Part getImage(File image){
+        RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), image);
+        MultipartBody.Part photo1part = MultipartBody.Part.createFormData("files", image.getName(), requestBody);
+        return photo1part;
+    }
     private Bitmap getImageBitmap(){
         Intent intent = getIntent();
         Uri imageUri = intent.getData();
